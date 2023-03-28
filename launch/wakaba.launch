@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/wakaba.rviz" />  
+
+    <!-- gazebo world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!-- <arg name="world_name" value="$(find dtw_robot)/worlds/system_class_field"/> -->
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="false"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <!-- dtw_robot -->
+    <include file="$(find dtw_robot)/launch/dtw_spawn.launch">
+        <arg name="init_pose" value="-x 1.575 -y 1.125"/>
+        <arg name="robot_name" value="wakaba"/>
+        <arg name="model" value="$(find dtw_robot)/xacro/wakaba.xacro"/>
+    </include>
+
+    <node name="real_pose_from_tf_converter" pkg="dtw_robot" type="real_pose_from_tf_converter" output="screen">
+        <param name="target_frame_id" value="odom"/>
+        <param name="source_frame_id" value="base_link"/>
+    </node>
+
+    <arg name="node_start_delay" default="5.0"/>
+    <node name="pure_pursuit" pkg="dtw_robot" type="pure_pursuit" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+        <param name="csv_file_path" value="$(find dtw_robot)/resources/wakaba_waypoints.csv"/>
+        <param name="show_waypoints_frame" value="odom"/>
+        <rosparam command="load" file="$(find dtw_robot)/config/pure_pursuit.yaml"/>
+    </node>
+
+    <!-- rviz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

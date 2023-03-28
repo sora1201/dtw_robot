@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<robot name="dtw_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+    <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+    </material>
+    <material name="red">
+        <color rgba="1.0 0.5 0.5 1.0"/>
+    </material>
+
+    <xacro:macro name="wheel_macro" params="parent prefix xyz">
+        <joint name="${prefix}_joint" type="continuous">
+            <origin xyz="${xyz}" rpy="${radians(-90)} 0 0"/>
+            <parent link="${parent}"/>
+            <child link="${prefix}_link"/>
+            <axis xyz="0 0 1"/>
+            <limit velocity="12.0" effort="0.4"/>
+            <dynamics damping="0.1"/>
+        </joint>
+        <transmission name="${prefix}_trans" type="SimpleTransmission">
+            <type>transmission_interface/SimpleTransmission</type>
+            <actuator name="${prefix}_motor">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+            <joint name="${prefix}_joint">
+                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+            </joint>
+        </transmission>
+        <link name="${prefix}_link">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="0.1"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+            <visual>
+                <geometry>
+                    <cylinder radius="0.045" length="0.025"/>
+                </geometry>
+                <material name="red"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder radius="0.045" length="0.025"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="${prefix}_link">
+            <material>Gazebo/Red</material>
+            <mu1 value="2.5"/>
+            <mu2 value="2.5"/>
+            <kp value="50000"/>
+            <kd value="10"/>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="body_macro" params="parent">
+        <joint name="body_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="body_link"/>
+            <origin xyz="-0.05 0 0.06" rpy="0 0 0"/>
+        </joint>
+        <link name="body_link">
+            <inertial>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="1.0"/>
+                <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.25 0.08"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.25 0.08"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="body_link">
+            <material>Gazebo/Gray</material>
+        </gazebo>
+
+        <!-- <joint name="body_left_joint" type="fixed">
+            <parent link="body_link"/>
+            <child link="body_left_joint"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </joint>
+        <link name="body_left_joint" type="fixed">
+            <inertia>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="0.1"/>
+                <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+            </inertia>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.03 0.03"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.03 0.03"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="body_left_link">
+            <material>Gazebo/Gray</material>
+        </gazebo>
+
+        <joint name="body_right_joint" type="fixed">
+            <parent link="body_link"/>
+            <child link="body_right_joint"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </joint>
+        <link name="body_right_joint" type="fixed">
+            <inertia>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <mass value="0.1"/>
+                <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+            </inertia>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.03 0.03"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.29 0.03 0.03"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="body_right_link">
+            <material>Gazebo/Gray</material>
+        </gazebo> -->
+
+        <joint name="ball_front_left_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ball_front_left_link"/>
+            <origin xyz="0.09 0.125 -0.024" rpy="0 0 0"/>
+        </joint>
+        <link name="ball_front_left_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </collision>
+        </link>
+        <gazebo reference="ball_front_left_link">
+            <material>Gazebo/Gray</material>
+            <mu1 value="0.5"/>
+            <mu2 value="0.5"/>
+        </gazebo>
+
+        <joint name="ball_front_right_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ball_front_right_link"/>
+            <origin xyz="0.09 -0.125 -0.024" rpy="0 0 0"/>
+        </joint>
+        <link name="ball_front_right_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </collision>
+        </link>
+        <gazebo reference="ball_front_right_link">
+            <material>Gazebo/Gray</material>
+            <mu1 value="0.5"/>
+            <mu2 value="0.5"/>
+        </gazebo>
+
+        <joint name="ball_rear_left_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ball_rear_left_link"/>
+            <origin xyz="-0.19 0.125 -0.024" rpy="0 0 0"/>
+        </joint>
+        <link name="ball_rear_left_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </collision>
+        </link>
+        <gazebo reference="ball_rear_left_link">
+            <material>Gazebo/Gray</material>
+            <mu1 value="0.5"/>
+            <mu2 value="0.5"/>
+        </gazebo>
+
+        <joint name="ball_rear_right_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="ball_rear_right_link"/>
+            <origin xyz="-0.19 -0.125 -0.024" rpy="0 0 0"/>
+        </joint>
+        <link name="ball_rear_right_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </collision>
+        </link>
+        <gazebo reference="ball_rear_right_link">
+            <material>Gazebo/Gray</material>
+            <mu1 value="0.5"/>
+            <mu2 value="0.5"/>
+        </gazebo>
+    </xacro:macro>
+</robot>

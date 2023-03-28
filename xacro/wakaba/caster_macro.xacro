@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<robot name="dtw_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="caster_macro" params="prefix parent xyz">
+        <joint name="${prefix}_joint" type="fixed">
+            <parent link="${parent}"/>
+            <child link="${prefix}_link"/>
+            <origin xyz="${xyz}" rpy="0 0 0"/>
+        </joint>
+        <link name="${prefix}_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <sphere radius="0.016"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="${prefix}_link">
+            <material>Gazebo/Gray</material>
+            <mu1 value="0.5"/>
+            <mu2 value="0.5"/>
+        </gazebo>
+    </xacro:macro>
+</robot>

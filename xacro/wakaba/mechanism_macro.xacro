@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot name="dtw_robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:macro name="mechanism_macro" params="prefix parent xyz size_xyz">
+        <joint name="${prefix}_joint" type="revolute">
+            <parent link="${parent}"/>
+            <child link="${prefix}_link"/>
+            <origin xyz="${xyz}" rpy="0 0 0"/>
+            <limit lower="-1.5" upper="1.5" effort="0.01" velocity="0"/>
+            <axis xyz="0 0 1"/>
+        </joint>
+        <link name="${prefix}_link">
+            <inertial>
+                <origin xyz="0 0.08 0" rpy="0 0 0"/>
+                <mass value="0.5"/>
+                <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+            </inertial>
+            <visual>
+                <origin xyz="0 0.08 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${size_xyz}"/>
+                </geometry>
+                <material name="gray"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0.08 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${size_xyz}"/>
+                </geometry>
+            </collision>
+        </link>
+        <gazebo reference="${prefix}_link">
+            <material>Gazebo/Red</material>
+        </gazebo>
+    </xacro:macro>
+</robot>

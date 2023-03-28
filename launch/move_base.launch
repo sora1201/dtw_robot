@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
+    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/amcl.rviz" />  
+
+    <!-- gazebo world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find dtw_robot)/worlds/room"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <!-- dtw_robot -->
+    <include file="$(find dtw_robot)/launch/dtw_spawn.launch"/>
+
+
+    <!-- gmapping -->
+    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
+        <rosparam command="load" file="$(find dtw_robot)/config/gmapping.yaml" />
+        <remap from="scan" to="front_laser/scan"/>
+    </node> -->
+
+    <!-- map_server -->
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/map.yaml"/>
+
+    <!-- amcl -->
+    <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
+        <rosparam command="load" file="$(find dtw_robot)/config/amcl.yaml" subst_value="true"/>
+        <remap from="scan" to="/front_laser/scan"/>
+    </node>
+
+    <node pkg="move_base" type="move_base" name="move_base" respawn="false" output="screen">
+        <rosparam command="load" file="$(find dtw_robot)/config/move_base/base_local_planner_params.yaml"/>
+        <rosparam command="load" file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml"/>
+        <rosparam command="load" file="$(find dtw_robot)/config/move_base/global_costmap_params.yaml"/>
+        <rosparam command="load" file="$(find dtw_robot)/config/move_base/local_costmap_params.yaml"/>
+        <rosparam command="load" file="$(find dtw_robot)/config/move_base/move_base_params.yaml"/>
+        <param name="global_costmap/global_frame" value="map"/>
+        <param name="global_costmap/robot_base_frame" value="base_link"/>
+        <param name="local_costmap/laser_scan_sensor/sensor_frame" value="front_laser_link"/>
+        <param name="local_costmap/laser_scan_sensor/topic" value="front_laser/scan"/>
+        <param name="local_costmap/global_frame" value="odom"/>
+        <param name="local_costmap/robot_base_frame" value="base_link"/>
+    </node>
+
+    <node pkg="dtw_robot" type="tf_converter" name="tf_converter" output="screen">
+        <param name="target_frame_id" value="map"/>
+        <param name="source_frame_id" value="base_link"/>
+    </node>
+    
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/>
+
+</launch>

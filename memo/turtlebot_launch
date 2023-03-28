@@ -1,0 +1,17 @@
+turtlebot3_world.launch
+
+empty_world.launch : load world
+
+node:gazebo_ros spawn_urdf : load turtlebot3
+
+---------------------------------------------------------------------
+
+turtlebot_slam.launch
+
+turtlebot3_remote.launch
+description.launch.xml : load .xacro
+node:robot_state_publisher
+
+turtlebot3_gmapping.launch : set method to gmapping.
+
+node:rviz

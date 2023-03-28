@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
+    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/simulation.rviz" />  
+    <arg name="play" default="false"/>
+
+    <include file="$(find dtw_robot)/launch/dtw_spawn.launch"/>
+
+    <group unless="$(arg play)">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="world_name" value="$(find dtw_robot)/worlds/room"/>
+            <arg name="paused" value="false"/>
+            <arg name="use_sim_time" value="true"/>
+            <arg name="gui" value="false"/>
+            <arg name="headless" value="false"/>
+            <arg name="debug" value="false"/>
+        </include>
+        
+        <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/map.yaml"/>
+
+        <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
+            <rosparam command="load" file="$(find dtw_robot)/config/amcl.yaml" subst_value="true"/>
+            <remap from="scan" to="/front_laser/scan"/>
+        </node>
+
+        <node name="real_pose_from_tf_converter" pkg="dtw_robot" type="real_pose_from_tf_converter" output="screen">
+            <param name="target_frame_id" value="map"/>
+            <param name="source_frame_id" value="base_link"/>
+        </node>
+
+        <!-- <node name="real_pose_publisher" pkg="dtw_robot" type="real_pose_publisher" output="screen"/> -->
+
+        <arg name="node_start_delay" default="5.0"/>
+        <node name="pure_pursuit" pkg="dtw_robot" type="pure_pursuit" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+            <param name="csv_file_path" value="$(find dtw_robot)/resources/waypoints.csv"/>
+            <param name="show_waypoints_frame" value="map"/>
+            <rosparam command="load" file="$(find dtw_robot)/config/pure_pursuit.yaml"/>
+        </node>
+    </group>    
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

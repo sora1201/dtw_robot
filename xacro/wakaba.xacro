@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot name="wakaba" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:arg name="robot_name" default="wakaba"/>
+
+    <material name="red">
+        <color rgba="1.0 0.5 0.5 1.0"/>
+    </material>
+    <material name="gray">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+    </material>
+    
+    <xacro:include filename="$(find dtw_robot)/xacro/wakaba/wheel_macro.xacro"/>
+    <xacro:include filename="$(find dtw_robot)/xacro/wakaba/box_macro.xacro"/>
+    <xacro:include filename="$(find dtw_robot)/xacro/wakaba/caster_macro.xacro"/>
+    <xacro:include filename="$(find dtw_robot)/xacro/wakaba/mechanism_macro.xacro"/>
+
+    <link name="base_link"/>
+
+    <xacro:wheel_macro prefix="left_wheel"  parent="base_link" xyz="-0.07 0.125 0.045"/>
+    <xacro:wheel_macro prefix="right_wheel" parent="base_link" xyz="-0.07 -0.125 0.045"/>
+    <xacro:box_macro prefix="left_body"     parent="base_link" xyz="-0.07 0.1 0.06"     size_xyz="0.29 0.025 0.025" />
+    <xacro:box_macro prefix="right_body"    parent="base_link" xyz="-0.07 -0.1 0.06"    size_xyz="0.29 0.025 0.025" />
+    <xacro:box_macro prefix="join_body"     parent="base_link" xyz="0 0 0.075"         size_xyz="0.03 0.225 0.005" />
+    <xacro:box_macro prefix="caster_front_left_body"    parent="base_link" xyz="0.03 0.1 0.0405"     size_xyz="0.05 0.025 0.041"/>
+    <xacro:box_macro prefix="caster_front_right_body"   parent="base_link" xyz="0.03 -0.1 0.0405"    size_xyz="0.05 0.025 0.041"/>
+    <xacro:box_macro prefix="caster_rear_left_body"     parent="base_link" xyz="-0.17 0.1 0.0405"    size_xyz="0.05 0.025 0.041"/>
+    <xacro:box_macro prefix="caster_rear_right_body"    parent="base_link" xyz="-0.17 -0.1 0.0405"   size_xyz="0.05 0.025 0.041"/>
+    <xacro:caster_macro prefix="front_left_caster"  parent="base_link" xyz="0.03 0.1 0.02"/>
+    <xacro:caster_macro prefix="front_right_caster" parent="base_link" xyz="0.03 -0.1 0.02"/>
+    <xacro:caster_macro prefix="rear_left_caster"   parent="base_link" xyz="-0.17 0.1 0.02"/>
+    <xacro:caster_macro prefix="rear_right_caster"  parent="base_link" xyz="-0.17 -0.1 0.02"/>
+
+    <!-- <xacro:mechanism_macro prefix="left_arm"    parent="base_link"  xyz="0.04 0.1 0.06"     size_xyz="0.01 0.2 0.01"/>
+    <xacro:mechanism_macro prefix="right_arm"   parent="base_link"  xyz="0.04 -0.1 0.06"    size_xyz="0.01 0.2 0.01"/> -->
+
+    <gazebo>
+        <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+            <leftJoint>left_wheel_joint</leftJoint>
+            <rightJoint>right_wheel_joint</rightJoint>
+            <robotBaseFrame>/base_link</robotBaseFrame>
+            <wheelSeparation>0.25</wheelSeparation>
+            <wheelDiameter>0.1</wheelDiameter>
+            <publishWheelJointState>true</publishWheelJointState>
+        </plugin>
+    </gazebo>
+</robot>
