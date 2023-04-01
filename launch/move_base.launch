@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
-    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/amcl.rviz" />  
+    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/move_base.rviz" />  
 
     <!-- gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find dtw_robot)/worlds/room"/>
+        <arg name="world_name" value="$(find dtw_robot)/worlds/test_room"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
+        <arg name="gui" value="false"/>
         <arg name="headless" value="false"/>
         <arg name="debug" value="false"/>
     </include>
@@ -24,7 +24,7 @@
     </node> -->
 
     <!-- map_server -->
-    <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/map.yaml"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml"/>
 
     <!-- amcl -->
     <node pkg="amcl" type="amcl" name="amcl" clear_params="true">

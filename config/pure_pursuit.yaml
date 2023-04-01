@@ -1,6 +1,6 @@
 ahead: 1
-max_vel: 0.4
-min_vel: 0.1
+max_vel: 0.2
+min_vel: 0.05
 max_w_vel: 1.2
 accel_range: 0.1
 decel_range: 0.1
