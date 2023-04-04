@@ -8,7 +8,7 @@
         <arg name="world_name" value="$(find dtw_robot)/worlds/room"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
+        <arg name="gui" value="false"/>
         <arg name="headless" value="false"/>
         <arg name="debug" value="false"/>
     </include>
@@ -24,5 +24,4 @@
 
     <!-- rviz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
-    <!-- <node name="rviz" pkg="rviz" type="rviz" required="true" /> -->
 </launch>
