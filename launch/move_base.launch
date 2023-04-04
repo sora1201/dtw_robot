@@ -46,10 +46,10 @@
         <param name="local_costmap/robot_base_frame" value="base_link"/>
     </node>
 
-    <node pkg="dtw_robot" type="tf_converter" name="tf_converter" output="screen">
+    <!-- <node pkg="dtw_robot" type="tf_converter" name="tf_converter" output="screen">
         <param name="target_frame_id" value="map"/>
         <param name="source_frame_id" value="base_link"/>
-    </node>
+    </node> -->
     
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/>
 
