@@ -5,24 +5,36 @@
 
     <!-- gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find dtw_robot)/worlds/room"/>
+        <arg name="world_name" value="$(find dtw_robot)/worlds/test_room"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="false"/>
         <arg name="headless" value="false"/>
         <arg name="debug" value="false"/>
     </include>
+    
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml"/>
 
-    <group ns="dtw_robot1">
+    <!-- <group ns="dtw_robot1"> -->
         <arg name="robot_name" value="dtw_robot1"/>
         <param name="robot_description" command="$(find xacro)/xacro $(arg model) --inorder robot_name:=$(arg robot_name)"/>
         <arg name="init_pose" value="-x 0.0 -y 0.0"/>
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model $(arg robot_name) $(arg init_pose)"/>
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
             <param name="tf_prefix" value="$(arg robot_name)"/>
-            <remap from="joint_states" to="/$(arg robot_name)/joint_states"/>
+            <!-- <remap from="joint_states" to="/$(arg robot_name)/joint_states"/> -->
         </node>
-    </group>
+        <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
+            <!-- <param name="base_frame_id" value="$(arg robot_name)/base_link"/>
+            <param name="odom_frame_id" value="$(arg robot_name)/odom"/>
+            <param name="global_frame_id" value="map"/>
+            <param name="use_map_topic" value="true"/>
+            <param name="first_map_only" value="false"/> -->
+            <rosparam command="load" file="$(find dtw_robot)/config/amcl.yaml" subst_value="true"/>
+            <remap from="scan" to="$(arg robot_name)/front_laser/scan"/>
+        </node>
+    <!-- </group> -->
     <group ns="dtw_robot2">
         <arg name="robot_name" value="dtw_robot2"/>
         <param name="robot_description" command="$(find xacro)/xacro $(arg model) --inorder robot_name:=$(arg robot_name)"/>
@@ -31,6 +43,14 @@
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
             <param name="tf_prefix" value="$(arg robot_name)"/>
             <remap from="joint_states" to="/$(arg robot_name)/joint_states"/>
+        </node>
+        <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
+            <param name="base_frame_id" value="$(arg robot_name)/base_link"/>
+            <param name="odom_frame_id" value="$(arg robot_name)/odom"/>
+            <param name="global_frame_id" value="map"/>
+            <param name="use_map_topic" value="true"/>
+            <param name="first_map_only" value="false"/>
+            <remap from="scan" to="$(arg robot_name)/front_laser/scan"/>
         </node>
     </group>
 

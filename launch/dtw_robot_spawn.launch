@@ -1,0 +1,30 @@
+<launch>
+    <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="robot_name" default="dtw_robot"/>
+
+    <group ns="$(arg robot_name)">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)"/>
+        <param name="tf_prefix" value="$(arg robot_name)_tf"/>
+        
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+            <param name="use_gui" value="False"/>
+        </node>
+
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+            <param name="publish_frequency" type="double" value="50.0" />
+            <param name="tf_prefix" value="$(arg robot_name)_tf" />
+        </node>
+
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args=" -urdf -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -param robot_description"/>
+    </group>
+
+    <include file="$(find dtw_robot)/launch/set_amcl_param.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="initial_pose_x" value="$(arg x)"/>
+        <arg name="initial_pose_y" value="$(arg y)"/>
+        <!-- <arg name="scan_topic" value="$(arg robot_name)/front_laser/scan"/> -->
+    </include>
+</launch>

@@ -16,7 +16,6 @@
     <!-- dtw_robot -->
     <include file="$(find dtw_robot)/launch/dtw_spawn.launch"/>
 
-
     <!-- gmapping -->
     <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
         <rosparam command="load" file="$(find dtw_robot)/config/gmapping.yaml" />
@@ -29,7 +28,7 @@
     <!-- amcl -->
     <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
         <rosparam command="load" file="$(find dtw_robot)/config/amcl.yaml" subst_value="true"/>
-        <remap from="scan" to="/front_laser/scan"/>
+        <!-- <remap from="scan" to="dtw_robot/front_laser/scan"/> -->
     </node>
 
     <node pkg="move_base" type="move_base" name="move_base" respawn="false" output="screen">
@@ -40,8 +39,8 @@
         <rosparam command="load" file="$(find dtw_robot)/config/move_base/move_base_params.yaml"/>
         <param name="global_costmap/global_frame" value="map"/>
         <param name="global_costmap/robot_base_frame" value="base_link"/>
-        <param name="local_costmap/laser_scan_sensor/sensor_frame" value="front_laser_link"/>
-        <param name="local_costmap/laser_scan_sensor/topic" value="front_laser/scan"/>
+        <param name="local_costmap/laser_scan_sensor/sensor_frame" value="dtw_robot/front_laser_link"/>
+        <!-- <param name="local_costmap/laser_scan_sensor/topic" value="dtw_robot/front_laser/scan"/> -->
         <param name="local_costmap/global_frame" value="odom"/>
         <param name="local_costmap/robot_base_frame" value="base_link"/>
     </node>

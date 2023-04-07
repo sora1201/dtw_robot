@@ -108,10 +108,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        imu_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         left_wheel_link:
           Alpha: 1
           Show Axes: false
@@ -140,9 +136,7 @@ Visualization Manager:
         body_link:
           Value: false
         front_laser_link:
-          Value: false
-        imu_link:
-          Value: false
+          Value: true
         left_wheel_link:
           Value: true
         map:
@@ -166,8 +160,6 @@ Visualization Manager:
               body_link:
                 {}
               front_laser_link:
-                {}
-              imu_link:
                 {}
               left_wheel_link:
                 {}
@@ -198,7 +190,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.05000000074505806
       Style: Flat Squares
-      Topic: /front_laser/scan
+      Topic: /scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -418,9 +410,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9621949195861816
+      Pitch: 1.1121947765350342
       Target Frame: <Fixed Frame>
-      Yaw: 3.1201424598693848
+      Yaw: 3.110142230987549
     Saved: ~
 Window Geometry:
   Displays:
