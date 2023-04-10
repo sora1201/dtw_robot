@@ -3,8 +3,9 @@ Panels:
     Help Height: 0
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
-      Splitter Ratio: 0.9117646813392639
+      Expanded:
+        - /Global Options1
+      Splitter Ratio: 0.5823529362678528
     Tree Height: 257
   - Class: rviz/Selection
     Name: Selection
@@ -358,7 +359,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.089533805847168
+      Distance: 9.017423629760742
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
