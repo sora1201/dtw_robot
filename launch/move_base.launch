@@ -1,55 +1,81 @@
-<?xml version="1.0"?>
 <launch>
-    <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
-    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/move_base.rviz" />  
+  <!-- Arguments -->
+  <arg name="robot_name"        default="dtw_robot"/>
+  <arg name="odom_frame_id"     default="$(arg robot_name)_tf/odom" />
+  <arg name="base_frame_id"     default="$(arg robot_name)_tf/base_link" />
+  <arg name="global_frame_id"   default="map" />
+  <arg name="laser_topic"       default="/$(arg robot_name)/scan" />
+  <arg name="cmd_vel_topic"     default="/$(arg robot_name)/cmd_vel" />
+  <arg name="odom_topic"        default="/$(arg robot_name)/odom" />
+  <!-- <arg name="move_forward_only" default="false"/> -->
 
-    <!-- gazebo world -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find dtw_robot)/worlds/test_room"/>
-        <arg name="paused" value="false"/>
-        <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="false"/>
-        <arg name="headless" value="false"/>
-        <arg name="debug" value="false"/>
-    </include>
+  <!-- move_base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="$(arg robot_name)_move_base" output="screen">
+    <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> -->
+    <rosparam file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find dtw_robot)/config/move_base/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find dtw_robot)/config/move_base/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find dtw_robot)/config/move_base/move_base_params.yaml" command="load" />
+    <!-- <rosparam file="$(find dtw_robot)/dwa_local_planner_params_$(arg model).yaml" command="load" /> -->
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <!-- <param name="DWAPlannerROS/min_vel_x" value="0.0" if="$(arg move_forward_only)" /> -->
 
-    <!-- dtw_robot -->
-    <include file="$(find dtw_robot)/launch/dtw_spawn.launch"/>
+    <param name="global_costmap/global_frame" value="$(arg global_frame_id)" />
+    <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)" />
+    <param name="local_costmap/global_frame" value="$(arg global_frame_id)" />
+    <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)" />
+    <!-- <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)" /> -->
 
-    <!-- gmapping -->
-    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
-        <rosparam command="load" file="$(find dtw_robot)/config/gmapping.yaml" />
-        <remap from="scan" to="front_laser/scan"/>
-    </node> -->
+    <remap from="cmd_vel"                                                                       to="$(arg cmd_vel_topic)"/>
+    <remap from="odom"                                                                          to="$(arg odom_topic)"/>
+    <remap from="scan"                                                                          to="$(arg laser_topic)"/>
+    <remap from="map"                                                                           to="/map"/>
 
-    <!-- map_server -->
-    <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml"/>
+    <remap from="/move_base_simple/goal"                                                        to="/$(arg robot_name)/move_base_simple/goal"                                           />
+    <remap from="/move_base/TebLocalPlannerROS/global_plan"                                     to="/$(arg robot_name)/move_base/TebLocalPlannerROS/global_plan"                        />
+    <remap from="/move_base/TebLocalPlannerROS/local_plan"                                      to="/$(arg robot_name)/move_base/TebLocalPlannerROS/local_plan"                         />
+    <remap from="/move_base/TebLocalPlannerROS/teb_markers"                                     to="/$(arg robot_name)/move_base/TebLocalPlannerROS/teb_markers"                        />
+    <remap from="/move_base/TebLocalPlannerROS/teb_markers_array"                               to="/$(arg robot_name)/move_base/TebLocalPlannerROS/teb_markers_array"                  />
+    <remap from="/move_base/TebLocalPlannerROS/teb_poses"                                       to="/$(arg robot_name)/move_base/TebLocalPlannerROS/teb_poses"                          />
+    <remap from="/move_base/global_costmap/costmap"                                             to="/$(arg robot_name)/move_base/global_costmap/costmap"                                />
+    <remap from="/move_base/global_costmap/costmap_updates"                                     to="/$(arg robot_name)/move_base/global_costmap/costmap_updates"                        />
+    <remap from="/move_base/local_costmap/costmap"                                              to="/$(arg robot_name)/move_base/local_costmap/costmap"                                 />
+    <remap from="/move_base/local_costmap/costmap_updates"                                      to="/$(arg robot_name)/move_base/local_costmap/costmap_updates"                         />
+    <remap from="/move_base/local_costmap/footprint"                                            to="/$(arg robot_name)/move_base/local_costmap/footprint"                               />
+    <remap from="/move_base/GlobalPlanner/parameter_descriptions"                               to="/$(arg robot_name)/move_base/GlobalPlanner/parameter_descriptions"                  />
+    <remap from="/move_base/GlobalPlanner/parameter_updates"                                    to="/$(arg robot_name)/move_base/GlobalPlanner/parameter_updates"                       />
+    <remap from="/move_base/GlobalPlanner/plan"                                                 to="/$(arg robot_name)/move_base/GlobalPlanner/plan"                                    />
+    <remap from="/move_base/GlobalPlanner/potential"                                            to="/$(arg robot_name)/move_base/GlobalPlanner/potential"                               />
+    <remap from="/move_base/TebLocalPlannerROS/obstaclces"                                      to="/$(arg robot_name)/move_base/TebLocalPlannerROS/obstaclces"                         />
+    <remap from="/move_base/TebLocalPlannerROS/parameter_descriptions"                          to="/$(arg robot_name)/move_base/TebLocalPlannerROS/parameter_descriptions"             />
+    <remap from="/move_base/TebLocalPlannerROS/parameter_updates"                               to="/$(arg robot_name)/move_base/TebLocalPlannerROS/parameter_updates"                  />
+    <remap from="/move_base/cancel"                                                             to="/$(arg robot_name)/move_base/cancel"                                                />
+    <remap from="/move_base/current_goal"                                                       to="/$(arg robot_name)/move_base/current_goal"                                          />
+    <remap from="/move_basefeedback"                                                            to="/$(arg robot_name)/move_basefeedback"                                               />
+    <remap from="/move_base/global_costmap/footprint"                                           to="/$(arg robot_name)/move_base/global_costmap/footprint"                              />
+    <remap from="/move_base/global_costmap/inflation_layer/parameter_descriptions"              to="/$(arg robot_name)/move_base/global_costmap/inflation_layer/parameter_descriptions" />
+    <remap from="/move_base/global_costmap/inflation_layer/parameter_updates"                   to="/$(arg robot_name)/move_base/global_costmap/inflation_layer/parameter_updates"      />
+    <remap from="/move_base/global_costmap/obstacle_layer/parameter_descriptions"               to="/$(arg robot_name)/move_base/global_costmap/obstacle_layer/parameter_descriptions"  />
+    <remap from="/move_base/global_costmap/obstacle_layer/parameter_updates"                    to="/$(arg robot_name)/move_base/global_costmap/obstacle_layer/parameter_updates"       />
+    <remap from="/move_base/global_costmap/parameter_descriptions"                              to="/$(arg robot_name)/move_base/global_costmap/parameter_descriptions"                 />
+    <remap from="/move_base/global_costmap/parameter_updates"                                   to="/$(arg robot_name)/move_base/global_costmap/parameter_updates"                      />
+    <remap from="/move_base/global_costmap/static_layer/parameter_descriptions"                 to="/$(arg robot_name)/move_base/global_costmap/static_layer/parameter_descriptions"    />
+    <remap from="/move_base/global_costmap/static_layer/parameter_updates"                      to="/$(arg robot_name)/move_base/global_costmap/static_layer/parameter_updates"         />
+    <remap from="/move_base/goal"                                                               to="/$(arg robot_name)/move_base/goal"                                                  />
+    <remap from="/move_base/local_costmap/obstacle_layer/parameter_descriptions"                to="/$(arg robot_name)/move_base/local_costmap/obstacle_layer/parameter_descriptions"   />
+    <remap from="/move_base/local_costmap/obstacle_layer/parameter_updates"                     to="/$(arg robot_name)/move_base/local_costmap/obstacle_layer/parameter_updates"        />
+    <remap from="/move_base/local_costmap/parameter_descriptions"                               to="/$(arg robot_name)/move_base/local_costmap/parameter_descriptions"                  />
+    <remap from="/move_base/local_costmap/parameter_updates"                                    to="/$(arg robot_name)/move_base/local_costmap/parameter_updates"                       />
+    <remap from="/move_base/local_costmap/static_layer/parameter_descriptions"                  to="/$(arg robot_name)/move_base/local_costmap/static_layer/parameter_descriptions"     />
+    <remap from="/move_base/local_costmap/static_layer/parameter_updates"                       to="/$(arg robot_name)/move_base/local_costmap/static_layer/parameter_updates"          />
+    <remap from="/move_base/parameter_descriptions"                                             to="/$(arg robot_name)/move_base/parameter_descriptions"                                />
+    <remap from="/move_base/parameter_updates"                                                  to="/$(arg robot_name)/move_base/parameter_updates"                                     />
+    <remap from="/move_base/result"                                                             to="/$(arg robot_name)/move_base/result"                                                />
+    <remap from="/move_base/status"                                                             to="/$(arg robot_name)/move_base/status"                                                />
 
-    <!-- amcl -->
-    <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
-        <rosparam command="load" file="$(find dtw_robot)/config/amcl.yaml" subst_value="true"/>
-        <!-- <remap from="scan" to="dtw_robot/front_laser/scan"/> -->
-    </node>
 
-    <node pkg="move_base" type="move_base" name="move_base" respawn="false" output="screen">
-        <rosparam command="load" file="$(find dtw_robot)/config/move_base/base_local_planner_params.yaml"/>
-        <rosparam command="load" file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml"/>
-        <rosparam command="load" file="$(find dtw_robot)/config/move_base/global_costmap_params.yaml"/>
-        <rosparam command="load" file="$(find dtw_robot)/config/move_base/local_costmap_params.yaml"/>
-        <rosparam command="load" file="$(find dtw_robot)/config/move_base/move_base_params.yaml"/>
-        <param name="global_costmap/global_frame" value="map"/>
-        <param name="global_costmap/robot_base_frame" value="base_link"/>
-        <param name="local_costmap/laser_scan_sensor/sensor_frame" value="dtw_robot/front_laser_link"/>
-        <!-- <param name="local_costmap/laser_scan_sensor/topic" value="dtw_robot/front_laser/scan"/> -->
-        <param name="local_costmap/global_frame" value="odom"/>
-        <param name="local_costmap/robot_base_frame" value="base_link"/>
-    </node>
 
-    <!-- <node pkg="dtw_robot" type="tf_converter" name="tf_converter" output="screen">
-        <param name="target_frame_id" value="map"/>
-        <param name="source_frame_id" value="base_link"/>
-    </node> -->
-    
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/>
-
+  </node>
 </launch>

@@ -16,7 +16,7 @@
             <param name="use_gui" value="false"/>
         </node>
 
-        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+        <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
             <param name="publish_frequency" type="double" value="50.0"/>
             <param name="tf_prefix" value="$(arg robot_name)_tf"/>
         </node>
@@ -34,11 +34,24 @@
     </group>
 
     <group if="$(arg amcl)">
-        <include file="$(find dtw_robot)/launch/set_amcl_param.launch">
+        <include file="$(find dtw_robot)/launch/amcl.launch">
             <arg name="robot_name" value="$(arg robot_name)"/>
             <arg name="initial_pose_x" value="$(arg x)"/>
             <arg name="initial_pose_y" value="$(arg y)"/>
             <!-- <arg name="scan_topic" value="$(arg robot_name)/front_laser/scan"/> -->
+        </include>
+    </group>
+
+    <group if="$(arg move_base)">
+        <include file="$(find dtw_robot)/launch/move_base.launch">
+            <arg name="robot_name" default="$(arg robot_name)"/>
+            <!-- <arg name="global_costmap_global_frame" default="map"/>
+            <arg name="global_costmap_robot_base_frame" default="$(arg robot_name)_tf/base_link"/>
+            <arg name="sensor_frame" default="$(arg robot_name)_tf/front_laser_link"/>
+            <arg name="scan_topic" default="$(arg robot_name)/scan"/>
+            <arg name="local_costmap_global_frame" default="$(arg robot_name)/odom"/>
+            <arg name="local_costmap_robot_base_frame" default="$(arg robot_name)/base_link"/>
+            <arg name="common_sensor_frame" default="$(arg robot_name)_tf/front_laser_link"/> -->
         </include>
     </group>
 

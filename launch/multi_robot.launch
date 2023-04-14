@@ -3,9 +3,9 @@
     <arg name="rvizconfig" default="$(find dtw_robot)/rviz/multi_robot.rviz" />  
     <arg name="world_name" default="$(find dtw_robot)/worlds/test_room"/>
 
-    <arg name="gmapping" value="true"/>
-    <arg name="amcl" value="false"/>
-    <arg name="move_base" value="false"/>
+    <arg name="gmapping" value="false"/>
+    <arg name="amcl" value="true"/>
+    <arg name="move_base" value="true"/>
 
     <include file="$(find dtw_robot)/launch/world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
@@ -30,12 +30,12 @@
     </include>
 
 
-    <node pkg="multirobot_map_merge" name="multirobot_map_merge" type="multirobot_map_merge" output="screen">
+    <!-- <node pkg="multirobot_map_merge" name="multirobot_map_merge" type="multirobot_map_merge" output="screen">
         <param name="robot_map_topic" value="map"/>
         <param name="robot_namespace" value="dtw_robot"/>
         <param name="merged_map_topic" value="map"/>
         <param name="world_frame" value="map"/>
-    </node>
+    </node> -->
 
     <!-- <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
         <param name="destination_frame" value="dtw_robot1_tf/base_link"/>
@@ -58,9 +58,11 @@
         <remap from="scan" to="/scan_multi"/>
     </node> -->
 
-    <!-- <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml">
-        <param name="frame_id" value="map"/>
-    </node> -->
+    <group if="$(arg amcl)">
+        <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml">
+            <param name="frame_id" value="map"/>
+        </node>
+    </group>
     
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true"/>
 </launch>
