@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
+    <arg name="rvizconfig" default="$(find dtw_robot)/rviz/pure_pursuit.rviz" />  
+    <arg name="world_name" default="room"/>
+    <arg name="play" default="false"/>
+
+    <arg name="gmapping" default="false"/>
+    <arg name="amcl" default="true"/>
+    <arg name="move_base" default="false"/>
+
+    <group unless="$(arg play)">
+        <include file="$(find dtw_robot)/launch/world.launch">
+            <arg name="world_name" value="$(find dtw_robot)/worlds/$(arg world_name)"/>
+            <arg name="gui" value="false"/>
+        </include>
+        
+        <include file="$(find dtw_robot)/launch/dtw_robot_spawn.launch">
+            <arg name="robot_name" value="dtw_robot1"/>
+            <arg name="x" value="0"/>
+            <arg name="y" value="0"/>
+            <arg name="gmapping" value="$(arg gmapping)"/>
+            <arg name="amcl" value="$(arg amcl)"/>
+            <arg name="move_base" value="$(arg move_base)"/>
+        </include>
+        <group if="$(arg amcl)">
+            <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/$(arg world_name)/map.yaml">
+                <param name="frame_id" value="map"/>
+            </node>
+        </group>
+
+        <arg name="node_start_delay" default="0"/>
+        <node name="pure_pursuit" pkg="dtw_robot" type="pure_pursuit" output="screen" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+            <param name="csv_file_path" value="$(find dtw_robot)/resources/waypoints.csv"/>
+            <param name="show_waypoints_frame" value="map"/>
+            <param name="target_frame_id" value="map"/>
+            <param name="source_frame_id" value="dtw_robot1_tf/base_link"/>
+            <rosparam command="load" file="$(find dtw_robot)/config/pure_pursuit.yaml"/>
+
+            <remap from="cmd_vel" to="/dtw_robot1/cmd_vel"/>
+        </node>
+    </group>    
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

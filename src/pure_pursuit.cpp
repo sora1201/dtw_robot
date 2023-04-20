@@ -8,8 +8,8 @@
 #include <sstream>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
 
 #define CONV2(x) (x>M_PI ? x-2*M_PI : x)
 
@@ -23,6 +23,11 @@ private:
     ros::Publisher _cmd_vel_pub;
     ros::Publisher _marker_pub;
     std::string _csv_file_path;
+
+    tf2_ros::Buffer _buffer;
+    tf2_ros::TransformListener _listenr;
+
+    std::string _target_frame_id, _source_frame_id;
     
     std::vector<std::vector<double>> _waypoints;
     geometry_msgs::Pose _real_pose;
@@ -59,7 +64,7 @@ private:
 
     bool isGoal();
 
-    double getYaw();
+    double getYaw(geometry_msgs::Quaternion quat);
 
     void setPauseIndex(int index);
 
@@ -86,6 +91,7 @@ _real_pose_sub(),
 _cmd_vel_pub(),
 _marker_pub(),
 _csv_file_path(),
+_listenr(_buffer),
 _waypoints{0},
 _real_pose(),
 _start_index(0),
@@ -112,6 +118,8 @@ _show_waypoints_frame()
     _pnh.getParam("goal_range", _goal_range);
     _pnh.getParam("goal_yaw_range", _goal_yaw_range);
     _pnh.getParam("show_waypoints_frame", _show_waypoints_frame);
+    _pnh.getParam("target_frame_id", _target_frame_id);
+    _pnh.getParam("source_frame_id", _source_frame_id);
 
     _real_pose_sub = _nh.subscribe("real_pose", 10, &PurePursuit::realPoseCallback, this);
     _cmd_vel_pub = _nh.advertise<geometry_msgs::Twist>("cmd_vel", 10);
@@ -122,7 +130,7 @@ _show_waypoints_frame()
 
 void PurePursuit::setWayPoints()
 {
-    static bool first = 0;
+    static bool first = false;
     std::ifstream ifs_csv_file(_csv_file_path);
 
     std::string str_buf;
@@ -132,7 +140,7 @@ void PurePursuit::setWayPoints()
 
         std::string str_conma_buf;
         
-        if (first == 0) 
+        if (first == true) 
         {
             std::vector<int> temp_data;
             while (std::getline(i_stream, str_conma_buf, ','))
@@ -143,7 +151,7 @@ void PurePursuit::setWayPoints()
             for (auto i = 0; i < _pause_index_list.size(); i++)
                 ROS_INFO("pindex:%d", _pause_index_list[i]);
             setPauseIndex(_pause_index_list[0]);
-            first = 1;
+            first = true;
         }
         else
         {
@@ -242,23 +250,41 @@ double PurePursuit::setWVelocity(double x_diff, double y_diff, double yaw, doubl
     double a = atan2(y_diff, x_diff) - yaw; //方位誤差
     double L = sqrt(x_diff*x_diff+y_diff*y_diff); //目標点と現在地の距離
 
-    return 2*x_vel*sin(a)/L;
+    double w_vel = 2*x_vel*sin(a)/L;
+    if (w_vel > _max_w_vel) w_vel = _max_w_vel;
+
+    return w_vel;
 }
 
 bool PurePursuit::follow()
 {
     geometry_msgs::Twist cmd_vel;
 
+    geometry_msgs::TransformStamped transform_stamped;
+    
+    try {
+        transform_stamped = _buffer.lookupTransform(_target_frame_id, _source_frame_id, ros::Time(0));
+    } catch (tf2::TransformException &ex) {
+        ROS_WARN("%s", ex.what());
+        ros::Duration(1.0).sleep();
+    }
+
+    _real_pose.position.x = transform_stamped.transform.translation.x;
+    _real_pose.position.y = transform_stamped.transform.translation.y;
+    _real_pose.position.z = transform_stamped.transform.translation.z;
+    _real_pose.orientation.x = transform_stamped.transform.rotation.x;
+    _real_pose.orientation.y = transform_stamped.transform.rotation.y;
+    _real_pose.orientation.z = transform_stamped.transform.rotation.z;
+    _real_pose.orientation.w = transform_stamped.transform.rotation.w;
+    
     int target = getTargetWayPoint();
     double x_diff = _waypoints[target].at(AXIS::X) - _real_pose.position.x;
     double y_diff = _waypoints[target].at(AXIS::Y) - _real_pose.position.y;
-
-    ROS_INFO("target:%d, pause:%d, start:%d, (x,y):(%lf,%lf)", target, _pause_index, _start_index, _real_pose.position.x, _real_pose.position.y);
     
     if (!isGoal())
     {
         cmd_vel.linear.x = setVelocity();
-        cmd_vel.angular.z = setWVelocity(x_diff, y_diff, getYaw(), cmd_vel.linear.x);
+        cmd_vel.angular.z = setWVelocity(x_diff, y_diff, getYaw(_real_pose.orientation), cmd_vel.linear.x);
         ROS_INFO("v:%lf, w:%lf", cmd_vel.linear.x, cmd_vel.angular.z);
         _cmd_vel_pub.publish(cmd_vel);
     
@@ -279,6 +305,8 @@ bool PurePursuit::follow()
             cmd_vel.angular.z = 0;
             _cmd_vel_pub.publish(cmd_vel);
             ROS_INFO("finish!!!");
+
+            ros::shutdown();
         }
     }
 
@@ -315,11 +343,11 @@ void PurePursuit::showWayPoints()
     }
 }
 
-double PurePursuit::getYaw()
+double PurePursuit::getYaw(geometry_msgs::Quaternion quat)
 {
     double roll, pitch, yaw;
-    tf2::Quaternion quat(_real_pose.orientation.x, _real_pose.orientation.y, _real_pose.orientation.z, _real_pose.orientation.w);
-    tf2::Matrix3x3(quat).getEulerYPR(yaw, pitch, roll);
+
+    tf2::getEulerYPR(quat, yaw, pitch, roll);
 
     return yaw;
 }

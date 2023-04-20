@@ -1,14 +1,14 @@
 <launch>
     <arg name="model" default="$(find dtw_robot)/xacro/dtw_robot.xacro" />
     <arg name="rvizconfig" default="$(find dtw_robot)/rviz/multi_robot.rviz" />  
-    <arg name="world_name" default="$(find dtw_robot)/worlds/test_room"/>
+    <arg name="world_name" default="test_room"/>
 
-    <arg name="gmapping" value="false"/>
-    <arg name="amcl" value="true"/>
-    <arg name="move_base" value="true"/>
+    <arg name="gmapping" default="false"/>
+    <arg name="amcl" default="true"/>
+    <arg name="move_base" default="true"/>
 
     <include file="$(find dtw_robot)/launch/world.launch">
-        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="world_name" value="$(find dtw_robot)/worlds/$(arg world_name)"/>
         <arg name="gui" value="false"/>
     </include>
 
@@ -59,7 +59,7 @@
     </node> -->
 
     <group if="$(arg amcl)">
-        <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/test_room_map/map.yaml">
+        <node pkg="map_server" type="map_server" name="map_server" args="$(find dtw_robot)/resources/$(arg world_name)/map.yaml">
             <param name="frame_id" value="map"/>
         </node>
     </group>
