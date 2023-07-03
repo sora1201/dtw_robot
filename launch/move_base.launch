@@ -12,11 +12,11 @@
   <!-- move_base -->
   <node pkg="move_base" type="move_base" respawn="false" name="$(arg robot_name)_move_base" output="screen">
     <!-- <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" /> -->
-    <rosparam file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find dtw_robot)/config/move_base/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find dtw_robot)/config/move_base/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find dtw_robot)/config/move_base/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find dtw_robot)/config/move_base/move_base_params.yaml" command="load" />
+    <rosparam file="$(find dtw_robot)/config/move_base/$(arg robot_name)/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find dtw_robot)/config/move_base/$(arg robot_name)/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find dtw_robot)/config/move_base/$(arg robot_name)/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find dtw_robot)/config/move_base/$(arg robot_name)/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find dtw_robot)/config/move_base/$(arg robot_name)/move_base_params.yaml" command="load" />
     <!-- <rosparam file="$(find dtw_robot)/dwa_local_planner_params_$(arg model).yaml" command="load" /> -->
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>
