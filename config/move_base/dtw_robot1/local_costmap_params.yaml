@@ -13,8 +13,13 @@ local_costmap:
 
   static_map: false
   update_frequency: 2.0
-  publish_frequency: 1.0
+  publish_frequency: 10.0
   rolling_window: true
+<<<<<<< HEAD:config/move_base/dtw_robot1/local_costmap_params.yaml
   width: 5.0
   height: 5.0
+=======
+  width: 2.0
+  height: 2.0
+>>>>>>> 275a617ee89e417b72d03cf8caee6c8f9738e1a1:config/move_base/local_costmap_params.yaml
   resolution: 0.05
